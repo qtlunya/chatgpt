@@ -38,11 +38,11 @@ class ChatGPTClient:
                 f"Current date: {datetime.utcnow().strftime('%Y-%m-%d')}",
             ])
 
-        self.user_id = user_id
+        self._user_id = user_id
 
-        self.context = []
+        self._context = []
         if initial_prompt:
-            self.context.append({
+            self._context.append({
                 "role": "system",
                 "content": initial_prompt,
             })
@@ -58,13 +58,13 @@ class ChatGPTClient:
         except KeyError:
             tokenizer = tiktoken.get_encoding("cl100k_base")
         while True:
-            num_tokens = len(tokenizer.encode("\n\n".join(x["content"] for x in [*self.context, question])))
+            num_tokens = len(tokenizer.encode("\n\n".join(x["content"] for x in [*self._context, question])))
             # Try to leave at least 25% of tokens for the response if possible
-            if num_tokens > 3072 and len(x for x in self.context if x["role"] != "system") > 1:
-                if self.context[0]["role"] == "system":
-                    self.context = [self.context[0], *self.context[2:]]
+            if num_tokens > 3072 and len(x for x in self._context if x["role"] != "system") > 1:
+                if self._context[0]["role"] == "system":
+                    self._context = [self._context[0], *self._context[2:]]
                 else:
-                    self.context = self.context[1:]
+                    self._context = self._context[1:]
             else:
                 break
 
@@ -76,8 +76,8 @@ class ChatGPTClient:
                 },
                 json={
                     "model": self.MODEL,
-                    "messages": [*self.context, question],
-                    "user": self.user_id,
+                    "messages": [*self._context, question],
+                    "user": self._user_id,
                 },
             ) as r:
                 res = await r.json()
@@ -85,8 +85,8 @@ class ChatGPTClient:
         if "error" in res:
             raise APIError(res["error"])
 
-        self.context.append(question)
+        self._context.append(question)
 
         answer = res["choices"][0]["message"]
-        self.context.append(answer)
+        self._context.append(answer)
         return answer["content"]
