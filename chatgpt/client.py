@@ -7,7 +7,6 @@ import os
 import uuid
 from collections import defaultdict
 from datetime import datetime
-from getpass import getuser
 from typing import Literal
 
 import aiohttp
@@ -18,8 +17,6 @@ from rich.markup import escape
 
 
 load_dotenv()
-
-context = defaultdict(dict)
 
 
 class APIError(Exception):
