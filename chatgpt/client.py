@@ -61,7 +61,7 @@ class ChatGPTClient:
             num_tokens = len(tokenizer.encode("\n\n".join(x["content"] for x in [*self._context, question])))
             # Try to leave at least 25% of tokens for the response if possible
             if num_tokens > 3072 and len(x for x in self._context if x["role"] != "system") > 1:
-                if self._context[0]["role"] == "system":
+                if self._context and self._context[0]["role"] == "system":
                     self._context[:] = [self._context[0], *self._context[2:]]
                 else:
                     self._context[:] = self._context[1:]
