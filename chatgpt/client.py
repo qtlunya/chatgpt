@@ -84,6 +84,28 @@ class ChatGPTClient:
         self._context.append(question)
 
         answer = res["choices"][0]["message"]
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url="https://api.openai.com/v1/moderations",
+                headers={
+                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                },
+                json={
+                    "input": f"{question}\n\n{answer['content']}",
+                },
+            ) as r:
+                res = await r.json()
+
+        print(res)
+
+        if "error" in res:
+            raise APIError(res["error"])
+
+        if res["results"][0]["flagged"]:
+            categories = [k for k, v in res["results"][0]["categories"].items() if v]
+            answer["content"] = f":warning: This content has been flagged as **{', '.join(categories)}**.\n\n||{answer['content']}||"
+
         self._context.append(answer)
         return answer["content"]
 
