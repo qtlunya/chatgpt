@@ -92,7 +92,7 @@ class ChatGPTClient:
                     "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
                 },
                 json={
-                    "input": f"{question}\n\n{answer['content']}",
+                    "input": f"{question['content']}\n\n{answer['content']}",
                 },
             ) as r:
                 res = await r.json()
