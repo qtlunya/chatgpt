@@ -90,3 +90,9 @@ class ChatGPTClient:
         answer = res["choices"][0]["message"]
         self._context.append(answer)
         return answer["content"]
+
+    def reset_context(self) -> None:
+        if self._context and self._context[0]["role"] == "system":
+            self._context[:] = [self._context[0]]
+        else:
+            self._context.clear()
