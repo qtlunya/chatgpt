@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "chatgpt"
+version = "0.1.0"
+description = "Asynchronous Python ChatGPT library using OpenAI API"
+authors = ["alexia <me@alexia.lol>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiohttp = "^3.8.4"
+python-dotenv = "^1.0.0"
+rich = "^13.3.2"
+tiktoken = "^0.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
