@@ -33,7 +33,7 @@ class APIWarning(Warning):
 class ChatGPTClient:
     MODEL = "gpt-3.5-turbo"
 
-    def __init__(self, *, user_id: str | None = None, initial_prompt: str | Literal[False] | None = None):
+    def __init__(self, *, initial_prompt: str | Literal[False] | None = None, user_id: str | None = None):
         if not initial_prompt and initial_prompt is not False:
             initial_prompt = "\n".join([
                 f"You are ChatGPT, a large language model trained by OpenAI.",
