@@ -1,3 +1,3 @@
-from .client import ChatGPTClient
+from .client import APIError, ChatGPTClient
 
-__all__ = ["ChatGPTClient"]
+__all__ = ["APIError", "ChatGPTClient"]
