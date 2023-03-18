@@ -34,7 +34,7 @@ class ChatGPTClient:
                 f"Current date: {datetime.utcnow().strftime('%Y-%m-%d')}",
             ])
 
-        self._user_id = user_id
+        self._user_id = str(user_id or "")
 
         self._context = []
         if initial_prompt:
