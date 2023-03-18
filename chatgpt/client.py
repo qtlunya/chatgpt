@@ -92,17 +92,39 @@ class ChatGPTClient:
                     "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
                 },
                 json={
+                    "input": question["content"],
+                },
+            ) as r:
+                question_res = await r.json()
+            if "error" in question_res:
+                raise APIError(res["error"])
+
+            async with session.post(
+                url="https://api.openai.com/v1/moderations",
+                headers={
+                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                },
+                json={
                     "input": f"{question['content']}\n\n{answer['content']}",
                 },
             ) as r:
-                res = await r.json()
+                answer_res = await r.json()
+            if "error" in answer_res:
+                raise APIError(res["error"])
 
-        if "error" in res:
-            raise APIError(res["error"])
+        categories = set()
+        for k, v in question_res["results"][0]["categories"].items():
+            if v:
+                categories.add(k)
+        for k, v in answer_res["results"][0]["categories"].items():
+            if v:
+                categories.add(k)
 
-        if res["results"][0]["flagged"]:
-            categories = [k for k, v in res["results"][0]["categories"].items() if v]
-            answer["content"] = f":warning: This content has been flagged as **{', '.join(categories)}**.\n\n||{answer['content']}||"
+        if answer_res["results"][0]["flagged"]:
+            answer["content"] = f"||{answer['content']}||"
+
+        if question_res["results"][0]["flagged"] or answer_res["results"][0]["flagged"]:
+            answer["content"] = f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{answer['content']}"
 
         self._context.append(answer)
         return answer["content"]
