@@ -23,10 +23,6 @@ class APIError(Exception):
     pass
 
 
-class APIWarning(Warning):
-    pass
-
-
 class ChatGPTClient:
     MODEL = "gpt-3.5-turbo"
 
