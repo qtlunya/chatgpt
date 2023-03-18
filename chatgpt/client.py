@@ -97,8 +97,6 @@ class ChatGPTClient:
             ) as r:
                 res = await r.json()
 
-        print(res)
-
         if "error" in res:
             raise APIError(res["error"])
 
