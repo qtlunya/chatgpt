@@ -62,9 +62,9 @@ class ChatGPTClient:
             # Try to leave at least 25% of tokens for the response if possible
             if num_tokens > 3072 and len(x for x in self._context if x["role"] != "system") > 1:
                 if self._context[0]["role"] == "system":
-                    self._context = [self._context[0], *self._context[2:]]
+                    self._context[:] = [self._context[0], *self._context[2:]]
                 else:
-                    self._context = self._context[1:]
+                    self._context[:] = self._context[1:]
             else:
                 break
 
