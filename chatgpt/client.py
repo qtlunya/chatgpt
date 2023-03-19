@@ -98,7 +98,7 @@ class ChatGPTClient:
             ) as r:
                 question_res = await r.json()
             if "error" in question_res:
-                raise APIError(res["error"])
+                raise APIError(question_res["error"])
 
             async with session.post(
                 url="https://api.openai.com/v1/moderations",
@@ -111,7 +111,7 @@ class ChatGPTClient:
             ) as r:
                 answer_res = await r.json()
             if "error" in answer_res:
-                raise APIError(res["error"])
+                raise APIError(answer_res["error"])
 
         categories = set()
         for k, v in question_res["results"][0]["categories"].items():
