@@ -133,13 +133,15 @@ class ChatGPTClient:
 
         self._context.append(answer)
 
+        answer_text = answer["content"]
+
         if answer_res["results"][0]["flagged"]:
-            answer["content"] = f"||{answer['content']}||"
+            answer_text = f"||{answer_text}||"
 
         if question_res["results"][0]["flagged"] or answer_res["results"][0]["flagged"]:
-            answer["content"] = f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{answer['content']}"
+            answer_text = f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{answer_text}"
 
-        return answer["content"]
+        return answer_text
 
     def reset_context(self) -> None:
         if self._context and self._context[0]["role"] == "system":
