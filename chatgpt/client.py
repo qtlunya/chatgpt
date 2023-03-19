@@ -32,6 +32,7 @@ class ChatGPTClient:
         *,
         initial_prompt: str | Literal[False] | None = None,
         max_context_tokens: int = 3072,
+        max_response_tokens: int = 500,
         user_id: str | None = None,
     ):
         if not initial_prompt and initial_prompt is not False:
@@ -42,6 +43,7 @@ class ChatGPTClient:
             ])
 
         self._max_context_tokens = max_context_tokens
+        self._max_response_tokens = max_response_tokens
 
         self._user_id = str(user_id or "")
 
@@ -81,6 +83,7 @@ class ChatGPTClient:
                 json={
                     "model": self.MODEL,
                     "messages": [*self._context, question],
+                    "max_tokens": self._max_response_tokens,
                     "user": hashlib.sha256(self._user_id.encode()).hexdigest(),
                 },
             ) as r:
