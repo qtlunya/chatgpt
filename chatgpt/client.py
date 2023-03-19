@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import os
 import uuid
 from collections import defaultdict
@@ -73,7 +74,7 @@ class ChatGPTClient:
                 json={
                     "model": self.MODEL,
                     "messages": [*self._context, question],
-                    "user": self._user_id,
+                    "user": hashlib.sha256(self._user_id).hexdigest(),
                 },
             ) as r:
                 res = await r.json()
