@@ -121,13 +121,14 @@ class ChatGPTClient:
             if v:
                 categories.add(k)
 
+        self._context.append(answer)
+
         if answer_res["results"][0]["flagged"]:
             answer["content"] = f"||{answer['content']}||"
 
         if question_res["results"][0]["flagged"] or answer_res["results"][0]["flagged"]:
             answer["content"] = f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{answer['content']}"
 
-        self._context.append(answer)
         return answer["content"]
 
     def reset_context(self) -> None:
