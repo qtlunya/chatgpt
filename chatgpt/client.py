@@ -27,13 +27,21 @@ class APIError(Exception):
 class ChatGPTClient:
     MODEL = "gpt-3.5-turbo"
 
-    def __init__(self, *, initial_prompt: str | Literal[False] | None = None, user_id: str | None = None):
+    def __init__(
+        self,
+        *,
+        initial_prompt: str | Literal[False] | None = None,
+        max_context_tokens: int = 3072,
+        user_id: str | None = None,
+    ):
         if not initial_prompt and initial_prompt is not False:
             initial_prompt = "\n".join([
                 f"You are ChatGPT, a large language model trained by OpenAI, based on the GPT-3.5 architecture.",
                 f"Knowledge cutoff: 2021-09",
                 f"Current date: {datetime.utcnow().strftime('%Y-%m-%d')}",
             ])
+
+        self._max_context_tokens = max_context_tokens
 
         self._user_id = str(user_id or "")
 
@@ -56,8 +64,7 @@ class ChatGPTClient:
             tokenizer = tiktoken.get_encoding("cl100k_base")
         while True:
             num_tokens = len(tokenizer.encode("\n\n".join(x["content"] for x in [*self._context, question])))
-            # Try to leave at least 25% of tokens for the response if possible
-            if num_tokens > 3072 and len(x for x in self._context if x["role"] != "system") > 1:
+            if num_tokens > self._max_context_tokens and len(x for x in self._context if x["role"] != "system") > 1:
                 if self._context and self._context[0]["role"] == "system":
                     self._context[:] = [self._context[0], *self._context[2:]]
                 else:
