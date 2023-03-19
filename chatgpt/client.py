@@ -74,7 +74,7 @@ class ChatGPTClient:
                 json={
                     "model": self.MODEL,
                     "messages": [*self._context, question],
-                    "user": hashlib.sha256(self._user_id).hexdigest(),
+                    "user": hashlib.sha256(self._user_id.encode()).hexdigest(),
                 },
             ) as r:
                 res = await r.json()
