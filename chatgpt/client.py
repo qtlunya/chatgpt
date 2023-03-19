@@ -30,7 +30,7 @@ class ChatGPTClient:
     def __init__(self, *, initial_prompt: str | Literal[False] | None = None, user_id: str | None = None):
         if not initial_prompt and initial_prompt is not False:
             initial_prompt = "\n".join([
-                f"You are ChatGPT, a large language model trained by OpenAI.",
+                f"You are ChatGPT, a large language model trained by OpenAI, based on the GPT-3.5 architecture.",
                 f"Knowledge cutoff: 2021-09",
                 f"Current date: {datetime.utcnow().strftime('%Y-%m-%d')}",
             ])
