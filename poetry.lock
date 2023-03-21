@@ -253,6 +253,49 @@ files = [
 ]
 
 [[package]]
+name = "click"
+version = "8.1.3"
+description = "Composable command line interface toolkit"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "click-8.1.3-py3-none-any.whl", hash = "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"},
+    {file = "click-8.1.3.tar.gz", hash = "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e"},
+]
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[[package]]
+name = "cloup"
+version = "2.0.0.post1"
+description = "Adds features to Click: option groups, constraints, subcommand sections and help themes."
+category = "main"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "cloup-2.0.0.post1-py2.py3-none-any.whl", hash = "sha256:da37c0a940e066c4c2e17c351448e797333926c0e00a15139dbf57c2c4fab4d6"},
+    {file = "cloup-2.0.0.post1.tar.gz", hash = "sha256:1430c9075062e09cb64cd84ab7afe5d5acd28adf561d6ab3109eb1975bbd7b6b"},
+]
+
+[package.dependencies]
+click = ">=8.0,<9.0"
+typing-extensions = {version = "*", markers = "python_version <= \"3.8\""}
+
+[[package]]
+name = "colorama"
+version = "0.4.6"
+description = "Cross-platform colored terminal text."
+category = "main"
+optional = true
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
+files = [
+    {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
+    {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
+]
+
+[[package]]
 name = "frozenlist"
 version = "1.3.3"
 description = "A list-like structure which implements collections.abc.MutableSequence"
@@ -802,7 +845,10 @@ files = [
 idna = ">=2.0"
 multidict = ">=4.0"
 
+[extras]
+cli = ["cloup"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "ccd6c50e7e29dacb20bd2d38220a4e89fd75dd56c2363308315d530b8b6278f7"
+content-hash = "2a079f8e62b0afd95e972d2bdde986da916d22df152376d5586c3125d8efa655"
