@@ -79,55 +79,54 @@ class ChatGPTClient:
             else:
                 break
 
-        async with self._session as session:
-            async with session.post(
-                url="https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
-                },
-                json={
-                    "model": self.MODEL,
-                    "messages": [*self._context, prompt],
-                    "max_tokens": self._max_completion_tokens,
-                    "user": hashlib.sha256(self._user_id.encode()).hexdigest(),
-                },
-            ) as r:
-                res = await r.json()
+        async with self._session.post(
+            url="https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+            },
+            json={
+                "model": self.MODEL,
+                "messages": [*self._context, prompt],
+                "max_tokens": self._max_completion_tokens,
+                "user": hashlib.sha256(self._user_id.encode()).hexdigest(),
+            },
+        ) as r:
+            res = await r.json()
 
-            if "error" in res:
-                raise APIError(res["error"])
+        if "error" in res:
+            raise APIError(res["error"])
 
-            self._context.append(prompt)
+        self._context.append(prompt)
 
-            completion = res["choices"][0]["message"]
+        completion = res["choices"][0]["message"]
 
-            async with session.post(
-                url="https://api.openai.com/v1/moderations",
-                headers={
-                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
-                },
-                json={
-                    "input": prompt["content"],
-                },
-            ) as r:
-                prompt_res = await r.json()
+        async with self._session.post(
+            url="https://api.openai.com/v1/moderations",
+            headers={
+                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+            },
+            json={
+                "input": prompt["content"],
+            },
+        ) as r:
+            prompt_res = await r.json()
 
-            if "error" in prompt_res:
-                raise APIError(prompt_res["error"])
+        if "error" in prompt_res:
+            raise APIError(prompt_res["error"])
 
-            async with session.post(
-                url="https://api.openai.com/v1/moderations",
-                headers={
-                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
-                },
-                json={
-                    "input": f"{prompt['content']}\n\n{completion['content']}",
-                },
-            ) as r:
-                completion_res = await r.json()
+        async with self._session.post(
+            url="https://api.openai.com/v1/moderations",
+            headers={
+                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+            },
+            json={
+                "input": f"{prompt['content']}\n\n{completion['content']}",
+            },
+        ) as r:
+            completion_res = await r.json()
 
-            if "error" in completion_res:
-                raise APIError(completion_res["error"])
+        if "error" in completion_res:
+            raise APIError(completion_res["error"])
 
         categories = set()
         for k, v in prompt_res["results"][0]["categories"].items():
