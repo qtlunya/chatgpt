@@ -54,6 +54,11 @@ class ChatGPTClient:
                 "content": initial_prompt,
             })
 
+        self._session = aiohttp.ClientSession()
+
+    def __del__(self):
+        self._session.close()
+
     async def get_answer(self, prompt: str) -> str:
         question = {
             "role": "user",
@@ -74,7 +79,7 @@ class ChatGPTClient:
             else:
                 break
 
-        async with aiohttp.ClientSession() as session:
+        async with self._session as session:
             async with session.post(
                 url="https://api.openai.com/v1/chat/completions",
                 headers={
@@ -89,14 +94,13 @@ class ChatGPTClient:
             ) as r:
                 res = await r.json()
 
-        if "error" in res:
-            raise APIError(res["error"])
+            if "error" in res:
+                raise APIError(res["error"])
 
-        self._context.append(question)
+            self._context.append(question)
 
-        answer = res["choices"][0]["message"]
+            answer = res["choices"][0]["message"]
 
-        async with aiohttp.ClientSession() as session:
             async with session.post(
                 url="https://api.openai.com/v1/moderations",
                 headers={
@@ -107,6 +111,7 @@ class ChatGPTClient:
                 },
             ) as r:
                 question_res = await r.json()
+
             if "error" in question_res:
                 raise APIError(question_res["error"])
 
@@ -120,6 +125,7 @@ class ChatGPTClient:
                 },
             ) as r:
                 answer_res = await r.json()
+
             if "error" in answer_res:
                 raise APIError(answer_res["error"])
 
