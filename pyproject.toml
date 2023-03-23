@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "chatgpt"
-version = "0.2.0"
+version = "0.2.1"
 description = "Asynchronous Python ChatGPT library using OpenAI API"
 authors = ["alexia <me@alexia.lol>"]
 license = "MIT"
