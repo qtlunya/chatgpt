@@ -32,7 +32,7 @@ class ChatGPTClient:
         *,
         initial_prompt: str | Literal[False] | None = None,
         max_context_tokens: int = 3072,
-        max_response_tokens: int = 500,
+        max_completion_tokens: int = 500,
         user_id: str | None = None,
     ):
         if not initial_prompt and initial_prompt is not False:
@@ -43,7 +43,7 @@ class ChatGPTClient:
             ])
 
         self._max_context_tokens = max_context_tokens
-        self._max_response_tokens = max_response_tokens
+        self._max_completion_tokens = max_completion_tokens
 
         self._user_id = str(user_id or "")
 
@@ -59,8 +59,8 @@ class ChatGPTClient:
     def __del__(self):
         self._session.close()
 
-    async def get_answer(self, prompt: str) -> str:
-        question = {
+    async def get_completion(self, prompt: str) -> str:
+        prompt = {
             "role": "user",
             "content": prompt,
         }
@@ -70,7 +70,7 @@ class ChatGPTClient:
         except KeyError:
             tokenizer = tiktoken.get_encoding("cl100k_base")
         while True:
-            num_tokens = len(tokenizer.encode("\n\n".join(x["content"] for x in [*self._context, question])))
+            num_tokens = len(tokenizer.encode("\n\n".join(x["content"] for x in [*self._context, prompt])))
             if num_tokens > self._max_context_tokens and len(x for x in self._context if x["role"] != "system") > 1:
                 if self._context and self._context[0]["role"] == "system":
                     self._context[:] = [self._context[0], *self._context[2:]]
@@ -87,8 +87,8 @@ class ChatGPTClient:
                 },
                 json={
                     "model": self.MODEL,
-                    "messages": [*self._context, question],
-                    "max_tokens": self._max_response_tokens,
+                    "messages": [*self._context, prompt],
+                    "max_tokens": self._max_completion_tokens,
                     "user": hashlib.sha256(self._user_id.encode()).hexdigest(),
                 },
             ) as r:
@@ -97,23 +97,9 @@ class ChatGPTClient:
             if "error" in res:
                 raise APIError(res["error"])
 
-            self._context.append(question)
+            self._context.append(prompt)
 
-            answer = res["choices"][0]["message"]
-
-            async with session.post(
-                url="https://api.openai.com/v1/moderations",
-                headers={
-                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
-                },
-                json={
-                    "input": question["content"],
-                },
-            ) as r:
-                question_res = await r.json()
-
-            if "error" in question_res:
-                raise APIError(question_res["error"])
+            completion = res["choices"][0]["message"]
 
             async with session.post(
                 url="https://api.openai.com/v1/moderations",
@@ -121,33 +107,47 @@ class ChatGPTClient:
                     "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
                 },
                 json={
-                    "input": f"{question['content']}\n\n{answer['content']}",
+                    "input": prompt["content"],
                 },
             ) as r:
-                answer_res = await r.json()
+                prompt_res = await r.json()
 
-            if "error" in answer_res:
-                raise APIError(answer_res["error"])
+            if "error" in prompt_res:
+                raise APIError(prompt_res["error"])
+
+            async with session.post(
+                url="https://api.openai.com/v1/moderations",
+                headers={
+                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                },
+                json={
+                    "input": f"{prompt['content']}\n\n{completion['content']}",
+                },
+            ) as r:
+                completion_res = await r.json()
+
+            if "error" in completion_res:
+                raise APIError(completion_res["error"])
 
         categories = set()
-        for k, v in question_res["results"][0]["categories"].items():
+        for k, v in prompt_res["results"][0]["categories"].items():
             if v:
                 categories.add(k)
-        for k, v in answer_res["results"][0]["categories"].items():
+        for k, v in completion_res["results"][0]["categories"].items():
             if v:
                 categories.add(k)
 
-        self._context.append(answer)
+        self._context.append(completion)
 
-        answer_text = answer["content"]
+        completion_text = completion["content"]
 
-        if answer_res["results"][0]["flagged"]:
-            answer_text = f"||{answer_text}||"
+        if completion_res["results"][0]["flagged"]:
+            completion_text = f"||{completion_text}||"
 
-        if question_res["results"][0]["flagged"] or answer_res["results"][0]["flagged"]:
-            answer_text = f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{answer_text}"
+        if prompt_res["results"][0]["flagged"] or completion_res["results"][0]["flagged"]:
+            completion_text = f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{completion_text}"
 
-        return answer_text
+        return completion_text
 
     def reset_context(self) -> None:
         if self._context and self._context[0]["role"] == "system":

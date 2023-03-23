@@ -16,6 +16,6 @@ def cli(initial_prompt: str | None, no_initial_prompt: bool) -> None:
     while True:
         try:
             prompt = input("> ")
-            print(asyncio.run(client.get_answer(prompt)))
+            print(asyncio.run(client.get_completion(prompt)))
         except (EOFError, KeyboardInterrupt):
             break
