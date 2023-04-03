@@ -4,6 +4,7 @@ from functools import wraps
 
 import cloup
 from cloup.constraints import mutually_exclusive
+from dotenv import load_dotenv
 
 from . import ChatGPTClient
 
@@ -22,7 +23,10 @@ def coroutine(f):
 @cloup.constraint(mutually_exclusive, ["initial_prompt", "no_initial_prompt"])
 @coroutine
 async def cli(initial_prompt: str | None, no_initial_prompt: bool) -> None:
+    load_dotenv()
+
     client = ChatGPTClient(initial_prompt=False if no_initial_prompt else initial_prompt)
+
     while True:
         try:
             prompt = input("> ")

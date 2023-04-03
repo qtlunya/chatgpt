@@ -12,12 +12,8 @@ from typing import Literal
 
 import aiohttp
 import tiktoken
-from dotenv import load_dotenv
 from rich.console import Console
 from rich.markup import escape
-
-
-load_dotenv()
 
 
 class APIError(Exception):

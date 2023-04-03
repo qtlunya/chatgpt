@@ -532,7 +532,7 @@ name = "python-dotenv"
 version = "1.0.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.8"
 files = [
     {file = "python-dotenv-1.0.0.tar.gz", hash = "sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba"},
@@ -846,9 +846,9 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [extras]
-cli = ["cloup"]
+cli = ["cloup", "python-dotenv"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "2a079f8e62b0afd95e972d2bdde986da916d22df152376d5586c3125d8efa655"
+content-hash = "1d9315801146ea6527830947179e9bf85b98cfbee1ec1345a5a2dbfd454ab6fb"

@@ -9,13 +9,13 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 aiohttp = ">=3.7.4.post0, <4"
-python-dotenv = ">=0.19.1, <2"
+python-dotenv = {version = ">=0.19.1, <2", optional = true}
 rich = "^13.3.2"
 tiktoken = "^0.3.2"
 cloup = {version = "^2.0.0.post1", optional = true}
 
 [tool.poetry.extras]
-cli = ["cloup"]
+cli = ["cloup", "python-dotenv"]
 
 [tool.poetry.scripts]
 chatgpt = "chatgpt.cli:cli"
