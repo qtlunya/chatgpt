@@ -2,18 +2,13 @@
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import os
-import uuid
-from collections import defaultdict
 from datetime import datetime
 from typing import Literal
 
 import aiohttp
 import tiktoken
-from rich.console import Console
-from rich.markup import escape
 
 
 class APIError(Exception):
@@ -36,8 +31,8 @@ class ChatGPTClient:
 
         if not initial_prompt and initial_prompt is not False:
             initial_prompt = "\n".join([
-                f"You are ChatGPT, a large language model trained by OpenAI, based on the GPT-3.5 architecture.",
-                f"Knowledge cutoff: 2021-09",
+                "You are ChatGPT, a large language model trained by OpenAI, based on the GPT-3.5 architecture.",
+                "Knowledge cutoff: 2021-09",
                 f"Current date: {datetime.utcnow().strftime('%Y-%m-%d')}",
             ])
 
@@ -143,7 +138,9 @@ class ChatGPTClient:
             completion_text = f"||{completion_text}||"
 
         if prompt_res["results"][0]["flagged"] or completion_res["results"][0]["flagged"]:
-            completion_text = f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{completion_text}"
+            completion_text = (
+                f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{completion_text}"
+            )
 
         return completion_text
 
