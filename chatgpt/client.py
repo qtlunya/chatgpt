@@ -26,11 +26,14 @@ class ChatGPTClient:
     def __init__(
         self,
         *,
+        api_key: str | None = None,
         initial_prompt: str | Literal[False] | None = None,
         max_context_tokens: int = 3072,
         max_completion_tokens: int = 500,
         user_id: str | None = None,
     ):
+        self._api_key = api_key or os.getenv("OPENAI_API_KEY")
+
         if not initial_prompt and initial_prompt is not False:
             initial_prompt = "\n".join([
                 f"You are ChatGPT, a large language model trained by OpenAI, based on the GPT-3.5 architecture.",
@@ -78,7 +81,7 @@ class ChatGPTClient:
         async with self._session.post(
             url="https://api.openai.com/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                "Authorization": f"Bearer {self._api_key}",
             },
             json={
                 "model": self.MODEL,
