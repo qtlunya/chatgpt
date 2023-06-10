@@ -97,7 +97,7 @@ class ChatGPTClient:
         async with self._session.post(
             url="https://api.openai.com/v1/moderations",
             headers={
-                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                "Authorization": f"Bearer {self._api_key}",
             },
             json={
                 "input": prompt["content"],
@@ -111,7 +111,7 @@ class ChatGPTClient:
         async with self._session.post(
             url="https://api.openai.com/v1/moderations",
             headers={
-                "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                "Authorization": f"Bearer {self._api_key}",
             },
             json={
                 "input": f"{prompt['content']}\n\n{completion['content']}",
