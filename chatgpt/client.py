@@ -65,7 +65,7 @@ class ChatGPTClient:
             tokenizer = tiktoken.get_encoding("cl100k_base")
         while True:
             num_tokens = len(tokenizer.encode("\n\n".join(x["content"] for x in [*self._context, prompt])))
-            if num_tokens > self._max_context_tokens and len(x for x in self._context if x["role"] != "system") > 1:
+            if num_tokens > self._max_context_tokens and len([x for x in self._context if x["role"] != "system"]) > 1:
                 if self._context and self._context[0]["role"] == "system":
                     self._context[:] = [self._context[0], *self._context[2:]]
                 else:
