@@ -57,8 +57,9 @@ class ChatGPTClient:
         prompt = {
             "role": "user",
             "content": prompt,
-            "name": author,
         }
+        if author:
+            prompt.update({"name": author})
 
         try:
             tokenizer = tiktoken.encoding_for_model(self.MODEL)
