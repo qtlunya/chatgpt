@@ -54,12 +54,20 @@ class ChatGPTClient:
         self._session.close()
 
     async def get_completion(self, prompt: str, author: str | None = None) -> str:
+        if author:
+            content = f"You are now talking to {author!r}."
+
+            message = next(x for x in reversed(self._context) if x["role"] == "system")
+            if message["content"] != content:
+                self._context.append({
+                    "role": "system",
+                    "content": content,
+                })
+
         prompt = {
             "role": "user",
             "content": prompt,
         }
-        if author:
-            prompt.update({"name": author})
 
         try:
             tokenizer = tiktoken.encoding_for_model(self.MODEL)
