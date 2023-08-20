@@ -53,10 +53,11 @@ class ChatGPTClient:
     def __del__(self):
         self._session.close()
 
-    async def get_completion(self, prompt: str) -> str:
+    async def get_completion(self, prompt: str, author: str | None = None) -> str:
         prompt = {
             "role": "user",
             "content": prompt,
+            "name": author,
         }
 
         try:
