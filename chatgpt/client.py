@@ -53,7 +53,7 @@ class ChatGPTClient:
     def __del__(self):
         self._session.close()
 
-    async def get_completion(self, prompt: str, author: str | None = None) -> str:
+    async def get_completion(self, prompt: str, author: str | None = None, enable_moderation: bool = True) -> str:
         if author:
             content = f"You are now talking to {author!r}."
 
@@ -103,54 +103,55 @@ class ChatGPTClient:
         self._context.append(prompt)
 
         completion = res["choices"][0]["message"]
-
-        async with self._session.post(
-            url="https://api.openai.com/v1/moderations",
-            headers={
-                "Authorization": f"Bearer {self._api_key}",
-            },
-            json={
-                "input": prompt["content"],
-            },
-        ) as r:
-            prompt_res = await r.json()
-
-        if "error" in prompt_res:
-            raise APIError(prompt_res["error"])
-
-        async with self._session.post(
-            url="https://api.openai.com/v1/moderations",
-            headers={
-                "Authorization": f"Bearer {self._api_key}",
-            },
-            json={
-                "input": f"{prompt['content']}\n\n{completion['content']}",
-            },
-        ) as r:
-            completion_res = await r.json()
-
-        if "error" in completion_res:
-            raise APIError(completion_res["error"])
-
-        categories = set()
-        for k, v in prompt_res["results"][0]["categories"].items():
-            if v:
-                categories.add(k)
-        for k, v in completion_res["results"][0]["categories"].items():
-            if v:
-                categories.add(k)
-
-        self._context.append(completion)
-
         completion_text = completion["content"]
 
-        if completion_res["results"][0]["flagged"]:
-            completion_text = f"||{completion_text}||"
+        if enable_moderation:
+            async with self._session.post(
+                url="https://api.openai.com/v1/moderations",
+                headers={
+                    "Authorization": f"Bearer {self._api_key}",
+                },
+                json={
+                    "input": prompt["content"],
+                },
+            ) as r:
+                prompt_res = await r.json()
 
-        if prompt_res["results"][0]["flagged"] or completion_res["results"][0]["flagged"]:
-            completion_text = (
-                f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n{completion_text}"
-            )
+            if "error" in prompt_res:
+                raise APIError(prompt_res["error"])
+
+            async with self._session.post(
+                url="https://api.openai.com/v1/moderations",
+                headers={
+                    "Authorization": f"Bearer {self._api_key}",
+                },
+                json={
+                    "input": f"{prompt['content']}\n\n{completion['content']}",
+                },
+            ) as r:
+                completion_res = await r.json()
+
+            if "error" in completion_res:
+                raise APIError(completion_res["error"])
+
+            categories = set()
+            for k, v in prompt_res["results"][0]["categories"].items():
+                if v:
+                    categories.add(k)
+            for k, v in completion_res["results"][0]["categories"].items():
+                if v:
+                    categories.add(k)
+
+            self._context.append(completion)
+
+            if completion_res["results"][0]["flagged"]:
+                completion_text = f"||{completion_text}||"
+
+            if prompt_res["results"][0]["flagged"] or completion_res["results"][0]["flagged"]:
+                completion_text = (
+                    f":warning: This content has been flagged as **{', '.join(sorted(categories))}**.\n\n"
+                    f"{completion_text}"
+                )
 
         return completion_text
 
