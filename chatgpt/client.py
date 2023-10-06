@@ -126,7 +126,7 @@ class ChatGPTClient:
                     "Authorization": f"Bearer {self._api_key}",
                 },
                 json={
-                    "input": f"{prompt['content']}\n\n{completion['content']}",
+                    "input": completion["content"],
                 },
             ) as r:
                 completion_res = await r.json()
